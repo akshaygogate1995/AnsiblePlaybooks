@@ -1,0 +1,8 @@
+---
+- name: This Will Create a User
+  hosts: all
+  become: true
+  tasks:
+  - name: To Create a username akshay
+    user: name=akshay
+

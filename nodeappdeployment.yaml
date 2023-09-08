@@ -1,0 +1,52 @@
+---
+- name: Install nodejs and npm
+  hosts: all
+  become: true
+  tasks:
+  - name: Update Apt repo and Cache
+    apt:
+      update_cache: yes
+      force_apt_get: yes
+      cache_valid_time: 3600
+  - name: Install Nodejs and NPM
+    apt: 
+      pkg: 
+       - nodejs
+       - npm
+- name: Create a new linux user for node app
+  hosts: all
+  become: true
+  tasks:
+  - name: Create a linux user
+    user:
+      name: akshay
+      comment: Akshay Admin
+      group: admin
+
+- name: Deploy Nodejs App
+  hosts: all
+  become: true
+  tasks:
+  - name: copy nodejs folder to a server
+    copy:
+      src: /home/ubuntu/Playbook/node-v18.17.1.tar.gz 
+      dest: /home/ubuntu/node-v01.01.1.tar.gz
+  - name: Unpack the nodejs tar file
+    unarchive:
+      src: /home/ubuntu/node-v01.01.1.tar.gz
+      dest: /home/ubuntu/
+      remote_src: yes
+  - name: Install Dependencies
+    npm: 
+      path: /home/ubuntu/package
+  - name: Start the application
+    command: 
+      chdir: /home/ubuntu/app
+      cmd: node server
+    async: 1000 
+    poll: 0
+  - name: Ensure app is running
+    shell: ps aux | grep node
+    register: app_status
+  - debug: msg={{app_status}}
+
